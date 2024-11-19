@@ -6,29 +6,33 @@ edition = "2021"
 [workspace]
 resolver = "2"
 members = [ 
-    "crates/chat", "crates/combat", "crates/fall_damage", "crates/physics", "crates/utils",
+    "crates/chat", "crates/combat", "crates/fall_damage", "crates/physics", "crates/schematics", "crates/utils",
 ]
 
 [workspace.dependencies]
 bevy_ecs = "0.14.2"
+valence_nbt = { git = "https://github.com/valence-rs/valence/" }
 valence_spatial = { git = "https://github.com/valence-rs/valence/" }
 valence = { git = "https://github.com/valence-rs/valence/" }
 tracing = "0.1.40"
 rand = "0.8.5"
 bevy_time = "0.14.2"
+thiserror = "2.0.3"
 
 chat = { path = "crates/chat" }
 physics = { path = "crates/physics" }
 utils = { path = "crates/utils" }
 combat = { path = "crates/combat" }
 fall_damage = { path = "crates/fall_damage" }
+schematics = { path = "crates/schematics" }
 
 [features]
-default = ["chat", "combat", "fall_damage", "physics"]
+default = ["chat", "combat", "fall_damage", "physics", "schematics"]
 chat = ["dep:chat"]
 combat = ["dep:combat"]
 fall_damage = ["dep:fall_damage"]
 physics = ["dep:physics"]
+schematics = ["dep:schematics", "dep:thiserror", "dep:valence_nbt"]
 
 [dev-dependencies]
 valence = { workspace = true }
@@ -40,6 +44,8 @@ chat = { workspace = true, optional = true }
 combat = { workspace = true, optional = true }
 fall_damage = { workspace = true, optional = true }
 physics = { workspace = true, optional = true }
-
+schematics = { workspace = true, optional = true }
+thiserror = { workspace = true, optional = true }
+valence_nbt = { workspace = true, optional = true }
 utils = { workspace = true }
 bevy_time = { workspace = true }
