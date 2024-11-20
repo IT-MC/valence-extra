@@ -1,11 +1,15 @@
 pub mod decode;
 
-use std::path::Path;
 use thiserror::Error;
-
+use valence_nbt::Value;
 pub struct Schematic {
-    w: f32,
-    h: f32,
+    w: i16,
+    h: i16,
+    l: i16,
+    palette: Value,
+    block_entities: Value,
+    data: Vec<i8>,
+    entities: Value,
 }
 
 #[derive(Debug, Error)]

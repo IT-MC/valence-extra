@@ -1,6 +1,7 @@
 use std::{io::Read, path::Path};
 
 use crate::{Schematic, SchematicError};
+use valence_nbt::{List, Value};
 
 impl Schematic {
     pub fn from_bytes(mut bytes: &[u8]) -> Result<Self, SchematicError> {
@@ -9,11 +10,9 @@ impl Schematic {
             let mut buffer = Vec::new();
             let _ = new_bytes
                 .read_to_end(&mut buffer)
-                //.unwrap();
                 .map_err(|_| SchematicError::ParseError(String::new()));
 
             valence_nbt::from_binary::<String>(&mut buffer.as_slice())
-                //.unwrap()
                 .map_err(|_| SchematicError::ParseError(String::new()))?
         } else {
             valence_nbt::from_binary::<String>(&mut bytes)
@@ -21,28 +20,60 @@ impl Schematic {
         };
 
         let schematic_value = nbt.get("Schematic");
-        if let Some(valence_nbt::Value::Compound(compound)) = schematic_value {
-            if let Some(width) = compound.get("Width") {
-                if let valence_nbt::Value::Short(w) = width {
-                    println!("Width: {}", w);
-                }
-            } else {
-                SchematicError::InvalidFormat(String::new());
-            }
-        } else {
-            SchematicError::InvalidFormat(String::new());
-        }
+        let schematic_compound = match schematic_value {
+            Some(Value::Compound(compound)) => compound,
+            _ => return Err(SchematicError::InvalidFormat(String::new())),
+        };
 
-        //  println!("NBT: {:?}", schematic_result);
-        //  println!("Root Name: {:?}", root_name);
-        Ok(Schematic { w: 0.0, h: 0.0 })
-    }
+        // Size along X, Y and Z axis
+        let width = match schematic_compound.get("Width") {
+            Some(Value::Short(width)) => width,
+            _ => return Err(SchematicError::InvalidFormat(String::new())),
+        };
 
-    pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self, SchematicError> {
-        Self::from_bytes(
-            std::fs::read(path)
-                .map_err(|_| SchematicError::FileNotFound(String::new()))?
-                .as_slice(),
-        )
+        let height = match schematic_compound.get("Height") {
+            Some(Value::Short(height)) => height,
+            _ => return Err(SchematicError::InvalidFormat(String::new())),
+        };
+
+        let length = match schematic_compound.get("Length") {
+            Some(Value::Short(length)) => length,
+            _ => return Err(SchematicError::InvalidFormat(String::new())),
+        };
+
+        // Blocks Wrapper
+        let blocks = match schematic_compound.get("Blocks") {
+            Some(Value::Compound(blocks)) => blocks,
+            _ => return Err(SchematicError::InvalidFormat(String::new())),
+        };
+        // Block Values
+        let block_entities = match blocks.get("BlockEntities") {
+            Some(Value::List(block_entities)) => block_entities,
+            _ => return Err(SchematicError::InvalidFormat(String::new())),
+        };
+        let data = match blocks.get("Data") {
+            Some(Value::ByteArray(data)) => data,
+            _ => return Err(SchematicError::InvalidFormat(String::new())),
+        };
+        let palette = match blocks.get("Palette") {
+            Some(Value::Compound(palette)) => palette,
+            _ => return Err(SchematicError::InvalidFormat(String::new())),
+        };
+
+        // Entities
+        let entities = match schematic_compound.get("Entities") {
+            Some(Value::List(entity)) => entity,
+            _ => return Err(SchematicError::InvalidFormat(String::new())),
+        };
+
+        Ok(Schematic {
+            w: *width,
+            h: *height,
+            l: *length,
+            block_entities: Value::List(block_entities.clone()),
+            data: data.clone(),
+            palette: Value::Compound(palette.clone()),
+            entities: Value::List(entities.clone()),
+        })
     }
 }

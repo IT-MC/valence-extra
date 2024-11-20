@@ -10,8 +10,7 @@ pub fn main() {
 
 fn setup() {
     // flate version
-    // let _ = Schematic::from_bytes(include_bytes!("./assets/unzipcabaret.schem")).unwrap();
-
+    let schematic = Schematic::from_bytes(include_bytes!("./assets/unzipcabaret.schem")).unwrap();
     // deflate version
-    let _ = Schematic::from_bytes(include_bytes!("./assets/cabaret-t5.schem")).unwrap();
+    // let _ = Schematic::from_bytes(include_bytes!("./assets/cabaret-t5.schem")).unwrap();
 }
