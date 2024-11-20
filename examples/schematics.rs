@@ -1,5 +1,4 @@
-use schematics::decode::Schematic;
-use std::fs;
+use schematics::Schematic;
 use valence::prelude::*;
 
 pub fn main() {
@@ -10,7 +9,9 @@ pub fn main() {
 }
 
 fn setup() {
-    // let some_bytes = fs::read("./examples/assets/cabaret-t5.schem").expect("Failed to read file");
-    let some_bytes = include_bytes!("./assets/cabaret-t5.schematics");
-    Schematic::new(some_bytes.as_slice());
+    // flate version
+    let _ = Schematic::from_bytes(include_bytes!("./assets/unzipcabaret.schem")).unwrap();
+
+    // deflate version
+    let _ = Schematic::from_bytes(include_bytes!("./assets/cabaret-t5.schem")).unwrap();
 }

@@ -5,5 +5,6 @@ edition = "2021"
 
 [dependencies]
 valence = { workspace = true }
-valence_nbt = { workspace = true, features = ["serde"]  }
+valence_nbt = { workspace = true, features = ["serde"] }
 thiserror = { workspace = true }
+flate2 = { workspace = true }
