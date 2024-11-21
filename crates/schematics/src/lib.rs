@@ -7,9 +7,9 @@ pub struct Schematic {
     h: i16,
     l: i16,
     palette: Value,
-    block_entities: Value,
+    pub block_entities: Vec<Box<dyn std::any::Any>>,
     data: Vec<i8>,
-    entities: Value,
+    pub entities: Vec<Box<dyn std::any::Any>>,
 }
 
 #[derive(Debug, Error)]

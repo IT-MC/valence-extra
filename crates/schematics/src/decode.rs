@@ -70,10 +70,79 @@ impl Schematic {
             w: *width,
             h: *height,
             l: *length,
-            block_entities: Value::List(block_entities.clone()),
+            block_entities: Self::list_to_vec(block_entities.clone()),
             data: data.clone(),
             palette: Value::Compound(palette.clone()),
-            entities: Value::List(entities.clone()),
+            entities: Self::list_to_vec(entities.clone()),
         })
+    }
+
+    fn list_to_vec<S>(list: List<S>) -> Vec<Box<dyn std::any::Any>>
+    where
+        S: ToString + 'static + serde::ser::Serialize + std::hash::Hash + std::cmp::Ord,
+    {
+        match list {
+            List::End => Vec::new(),
+            List::Byte(list) => list
+                .into_iter()
+                .map(|x| Box::new(x) as Box<dyn std::any::Any>)
+                .collect(),
+            List::Short(list) => list
+                .into_iter()
+                .map(|x| Box::new(x) as Box<dyn std::any::Any>)
+                .collect(),
+            List::Int(list) => list
+                .into_iter()
+                .map(|x| Box::new(x) as Box<dyn std::any::Any>)
+                .collect(),
+            List::Long(list) => list
+                .into_iter()
+                .map(|x| Box::new(x) as Box<dyn std::any::Any>)
+                .collect(),
+            List::Float(list) => list
+                .into_iter()
+                .map(|x| Box::new(x) as Box<dyn std::any::Any>)
+                .collect(),
+            List::Double(list) => list
+                .into_iter()
+                .map(|x| Box::new(x) as Box<dyn std::any::Any>)
+                .collect(),
+            List::String(list) => list
+                .into_iter()
+                .map(|x| Box::new(x) as Box<dyn std::any::Any>)
+                .collect(),
+            List::ByteArray(list) => list
+                .into_iter()
+                .flat_map(|inner| {
+                    inner
+                        .into_iter()
+                        .map(|x| Box::new(x) as Box<dyn std::any::Any>)
+                })
+                .collect(),
+            List::IntArray(list) => list
+                .into_iter()
+                .flat_map(|inner| {
+                    inner
+                        .into_iter()
+                        .map(|x| Box::new(x) as Box<dyn std::any::Any>)
+                })
+                .collect(),
+            List::LongArray(list) => list
+                .into_iter()
+                .flat_map(|inner| {
+                    inner
+                        .into_iter()
+                        .map(|x| Box::new(x) as Box<dyn std::any::Any>)
+                })
+                .collect(),
+            List::List(list) => list.into_iter().flat_map(Self::list_to_vec).collect(),
+            List::Compound(list) => list
+                .into_iter()
+                .map(|x| {
+                    let json_string = serde_json::to_string(&x).expect("Serialization failed");
+                    Box::new(json_string) as Box<dyn std::any::Any>
+                })
+                .collect(),
+        }
     }
 }
