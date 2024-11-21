@@ -1,7 +1,8 @@
 use std::{io::Read, path::Path};
 
-use crate::{Schematic, SchematicError};
-use valence_nbt::{List, Value};
+use crate::{BlockEntitySchematic, BlockEntityData, Schematic, SchematicError};
+use valence::prelude::Res;
+use valence_nbt::{Compound, List, Value};
 
 impl Schematic {
     pub fn from_bytes(mut bytes: &[u8]) -> Result<Self, SchematicError> {
@@ -51,6 +52,9 @@ impl Schematic {
             Some(Value::List(block_entities)) => block_entities,
             _ => return Err(SchematicError::InvalidFormat(String::new())),
         };
+
+        let vec_block_entities = Self::parse_vec_block(block_entities.clone()).unwrap();
+
         let data = match blocks.get("Data") {
             Some(Value::ByteArray(data)) => data,
             _ => return Err(SchematicError::InvalidFormat(String::new())),
@@ -60,24 +64,79 @@ impl Schematic {
             _ => return Err(SchematicError::InvalidFormat(String::new())),
         };
 
+        let palette_map = serde_json::to_string(&palette)
+            .map_err(|_| SchematicError::ParseError("Failed to serialize compound".to_string()));
+
         // Entities
         let entities = match schematic_compound.get("Entities") {
             Some(Value::List(entity)) => entity,
             _ => return Err(SchematicError::InvalidFormat(String::new())),
         };
 
+        let vec_entities = Self::parse_vec_compound(entities.clone()).unwrap();
+
         Ok(Schematic {
             w: *width,
             h: *height,
             l: *length,
-            block_entities: Self::list_to_vec(block_entities.clone()),
+            block_entities: vec_block_entities.clone(),
             data: data.clone(),
-            palette: Value::Compound(palette.clone()),
-            entities: Self::list_to_vec(entities.clone()),
+            palette: palette_map?,
+            entities: vec_entities,
         })
     }
 
-    fn list_to_vec<S>(list: List<S>) -> Vec<Box<dyn std::any::Any>>
+    fn parse_vec_compound(list: List<String>) -> Result<Vec<String>, SchematicError> {
+        list.into_iter()
+            .map(|x| match x {
+                Value::Compound(compound) => serde_json::to_string(&compound).map_err(|_| {
+                    SchematicError::ParseError("Failed to serialize compound".to_string())
+                }),
+                _ => Err(SchematicError::InvalidFormat(
+                    "Expected Compound value".to_string(),
+                )),
+            })
+            .collect()
+    }
+
+    fn parse_compound_block(compound: Compound) -> Result<BlockEntitySchematic, SchematicError> {
+        // Data is optional according to Sponge Schematic Specification
+        let data = match compound.get("Data") {
+            Some(Value::Compound(data)) => data,
+            _ => return Err(SchematicError::InvalidFormat(String::new())),
+        };
+
+        let parsed_data = serde_json::to_string(&data).expect("Failed to serialize compound");
+
+        let id = match compound.get("Id") {
+            Some(Value::String(data)) => data,
+            _ => return Err(SchematicError::InvalidFormat(String::new())),
+        };
+
+        let pos = match compound.get("Pos") {
+            Some(Value::IntArray(data)) => data,
+            _ => return Err(SchematicError::InvalidFormat(String::new())),
+        };
+
+        Ok(BlockEntitySchematic {
+            data: Some(BlockEntityData::Sign(parsed_data)),
+            id: id.to_string(),
+            pos: pos.clone(),
+        })
+    }
+
+    fn parse_vec_block(list: List<String>) -> Result<Vec<BlockEntitySchematic>, SchematicError> {
+        list.into_iter()
+            .map(|x| match x {
+                Value::Compound(compound) => Ok(Self::parse_compound_block(compound)?),
+                _ => Err(SchematicError::InvalidFormat(
+                    "Expected Compound value".to_string(),
+                )),
+            })
+            .collect()
+    }
+
+    /*     fn list_to_vec<S>(list: List<S>) -> Vec<Box<dyn std::any::Any>>
     where
         S: ToString + 'static + serde::ser::Serialize + std::hash::Hash + std::cmp::Ord,
     {
@@ -144,5 +203,5 @@ impl Schematic {
                 })
                 .collect(),
         }
-    }
+    } */
 }

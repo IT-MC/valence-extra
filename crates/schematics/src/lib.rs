@@ -3,13 +3,26 @@ pub mod decode;
 use thiserror::Error;
 use valence_nbt::Value;
 pub struct Schematic {
-    w: i16,
-    h: i16,
-    l: i16,
-    palette: Value,
-    pub block_entities: Vec<Box<dyn std::any::Any>>,
-    data: Vec<i8>,
-    pub entities: Vec<Box<dyn std::any::Any>>,
+    pub w: i16,
+    pub h: i16,
+    pub l: i16,
+    pub palette: String,
+    pub block_entities: Vec<BlockEntitySchematic>,
+    pub data: Vec<i8>,
+    pub entities: Vec<String>,
+}
+
+#[derive(Clone, Debug)]
+pub struct BlockEntitySchematic {
+    pub data: Option<BlockEntityData>,
+    pub id: String,
+    pub pos: Vec<i32>,
+}
+
+#[derive(Clone, Debug)]
+pub enum BlockEntityData {
+    Sign(String),
+    Default(String)
 }
 
 #[derive(Debug, Error)]
