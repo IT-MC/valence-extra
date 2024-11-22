@@ -1,4 +1,4 @@
-use schematics::Schematic;
+use schematics::{BlockEntityData, Schematic};
 use valence::prelude::*;
 
 pub fn main() {
@@ -13,5 +13,7 @@ fn setup() {
     let schematic = Schematic::from_bytes(include_bytes!("./assets/unzipcabaret.schem")).unwrap();
     // deflate version
     // let _ = Schematic::from_bytes(include_bytes!("./assets/cabaret-t5.schem")).unwrap();
-    println!("{:?}", schematic.block_entities[0].data.clone().unwrap());
+    let data = schematic.block_entities.get(0).unwrap();
+
+    println!("{:#?}", data);
 }

@@ -1,7 +1,9 @@
-use std::{io::Read, path::Path};
+use std::io::Read;
 
-use crate::{BlockEntitySchematic, BlockEntityData, Schematic, SchematicError};
-use valence::prelude::Res;
+use crate::{
+    BlockEntityData, BlockEntitySchematic, DefaultBlockEntityData, Schematic, SchematicError,
+    SignBlockEntityData, SignTextData,
+};
 use valence_nbt::{Compound, List, Value};
 
 impl Schematic {
@@ -106,12 +108,12 @@ impl Schematic {
             _ => return Err(SchematicError::InvalidFormat(String::new())),
         };
 
-        let parsed_data = serde_json::to_string(&data).expect("Failed to serialize compound");
-
         let id = match compound.get("Id") {
             Some(Value::String(data)) => data,
             _ => return Err(SchematicError::InvalidFormat(String::new())),
         };
+
+        let block_entity_data = BlockEntityData::parse_block_entity_data(data.clone());
 
         let pos = match compound.get("Pos") {
             Some(Value::IntArray(data)) => data,
@@ -119,7 +121,7 @@ impl Schematic {
         };
 
         Ok(BlockEntitySchematic {
-            data: Some(BlockEntityData::Sign(parsed_data)),
+            data: block_entity_data,
             id: id.to_string(),
             pos: pos.clone(),
         })
@@ -135,73 +137,115 @@ impl Schematic {
             })
             .collect()
     }
+}
 
-    /*     fn list_to_vec<S>(list: List<S>) -> Vec<Box<dyn std::any::Any>>
-    where
-        S: ToString + 'static + serde::ser::Serialize + std::hash::Hash + std::cmp::Ord,
-    {
-        match list {
-            List::End => Vec::new(),
-            List::Byte(list) => list
-                .into_iter()
-                .map(|x| Box::new(x) as Box<dyn std::any::Any>)
-                .collect(),
-            List::Short(list) => list
-                .into_iter()
-                .map(|x| Box::new(x) as Box<dyn std::any::Any>)
-                .collect(),
-            List::Int(list) => list
-                .into_iter()
-                .map(|x| Box::new(x) as Box<dyn std::any::Any>)
-                .collect(),
-            List::Long(list) => list
-                .into_iter()
-                .map(|x| Box::new(x) as Box<dyn std::any::Any>)
-                .collect(),
-            List::Float(list) => list
-                .into_iter()
-                .map(|x| Box::new(x) as Box<dyn std::any::Any>)
-                .collect(),
-            List::Double(list) => list
-                .into_iter()
-                .map(|x| Box::new(x) as Box<dyn std::any::Any>)
-                .collect(),
-            List::String(list) => list
-                .into_iter()
-                .map(|x| Box::new(x) as Box<dyn std::any::Any>)
-                .collect(),
-            List::ByteArray(list) => list
-                .into_iter()
-                .flat_map(|inner| {
-                    inner
+impl BlockEntityData {
+    fn parse_block_entity_data(compound: Compound) -> BlockEntityData {
+        let id = match compound.get("id") {
+            Some(Value::String(data)) => data,
+            _ => "",
+        };
+
+        return match id {
+            "minecraft:sign" => {
+                let is_waxed = compound
+                    .get("is_waxed")
+                    .and_then(|val| match val {
+                        Value::Byte(v) => Some(*v),
+                        _ => None,
+                    })
+                    .unwrap_or(0);
+
+                // Resolve back_text and front_text
+                let front_text = compound
+                    .get("front_text")
+                    .and_then(|val| match val {
+                        Value::Compound(v) => Some(v.clone()),
+                        _ => None,
+                    })
+                    .unwrap_or(Compound::new());
+
+                let front_text_color = front_text
+                    .get("color")
+                    .and_then(|val| match val {
+                        Value::String(v) => Some(v.clone()),
+                        _ => None,
+                    })
+                    .unwrap_or("yellow".to_string());
+
+                let front_text_has_glowing_text = front_text
+                    .get("has_glowing_text")
+                    .and_then(|val| match val {
+                        Value::Byte(v) => Some(*v),
+                        _ => None,
+                    })
+                    .unwrap_or(0);
+
+                let front_text_messages: Vec<String> = match front_text.get("messages") {
+                    Some(Value::List(data)) => data
+                        .clone()
                         .into_iter()
-                        .map(|x| Box::new(x) as Box<dyn std::any::Any>)
-                })
-                .collect(),
-            List::IntArray(list) => list
-                .into_iter()
-                .flat_map(|inner| {
-                    inner
+                        .map(|x| match x {
+                            Value::String(text) => text,
+                            _ => "".to_string(),
+                        })
+                        .collect(),
+                    _ => vec![],
+                };
+
+                // Back Text Values
+                let back_text = compound
+                    .get("back_text")
+                    .and_then(|val| match val {
+                        Value::Compound(v) => Some(v.clone()),
+                        _ => None,
+                    })
+                    .unwrap_or(Compound::new());
+
+                let back_text_color = back_text
+                    .get("color")
+                    .and_then(|val| match val {
+                        Value::String(v) => Some(v.clone()),
+                        _ => None,
+                    })
+                    .unwrap_or("black".to_string());
+
+                let back_text_has_glowing_text = back_text
+                    .get("has_glowing_text")
+                    .and_then(|val| match val {
+                        Value::Byte(v) => Some(*v),
+                        _ => None,
+                    })
+                    .unwrap_or(0);
+
+                let back_text_messages: Vec<String> = match back_text.get("messages") {
+                    Some(Value::List(data)) => data
+                        .clone()
                         .into_iter()
-                        .map(|x| Box::new(x) as Box<dyn std::any::Any>)
+                        .map(|x| match x {
+                            Value::String(text) => text,
+                            _ => "".to_string(),
+                        })
+                        .collect(),
+                    _ => vec![],
+                };
+
+                BlockEntityData::Sign(SignBlockEntityData {
+                    id: id.to_string(),
+                    is_waxed,
+                    front_text: SignTextData {
+                        color: front_text_color,
+                        has_glowing_text: front_text_has_glowing_text,
+                        messages: front_text_messages,
+                    },
+                    back_text: SignTextData {
+                        color: back_text_color,
+                        has_glowing_text: back_text_has_glowing_text,
+                        messages: back_text_messages,
+                    },
                 })
-                .collect(),
-            List::LongArray(list) => list
-                .into_iter()
-                .flat_map(|inner| {
-                    inner
-                        .into_iter()
-                        .map(|x| Box::new(x) as Box<dyn std::any::Any>)
-                })
-                .collect(),
-            List::List(list) => list.into_iter().flat_map(Self::list_to_vec).collect(),
-            List::Compound(list) => list
-                .into_iter()
-                .map(|x| {
-                    let json_string = serde_json::to_string(&x).expect("Serialization failed");
-                    Box::new(json_string) as Box<dyn std::any::Any>
-                })
-                .collect(),
-        }
-    } */
+            }
+            _ => BlockEntityData::Default(DefaultBlockEntityData { id: id.to_string() }),
+        };
+    }
 }
