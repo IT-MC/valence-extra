@@ -1,4 +1,4 @@
-use schematics::{BlockEntityData, Schematic};
+use schematics::Schematic;
 use valence::prelude::*;
 
 pub fn main() {

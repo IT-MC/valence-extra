@@ -1,6 +1,9 @@
+pub mod block_entity;
 pub mod decode;
 
 use thiserror::Error;
+
+#[derive(Debug)]
 pub struct Schematic {
     pub w: i16,
     pub h: i16,
@@ -76,15 +79,15 @@ pub struct DefaultBlockEntityData {
 
 #[derive(Clone, Debug)]
 pub struct SignBlockEntityData {
-    back_text: SignTextData,
-    front_text: SignTextData,
+    pub back_text: SignTextData,
+    pub front_text: SignTextData,
     pub id: String,
-    is_waxed: i8,
+    pub is_waxed: i8,
 }
 
 #[derive(Clone, Debug)]
-struct SignTextData {
-    color: String,
-    has_glowing_text: i8,
-    messages: Vec<String>,
+pub struct SignTextData {
+    pub color: String,
+    pub has_glowing_text: i8,
+    pub messages: Vec<String>,
 }
