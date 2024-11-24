@@ -13,7 +13,6 @@ fn setup() {
     let schematic = Schematic::from_bytes(include_bytes!("./assets/unzipcabaret.schem")).unwrap();
     // deflate version
     // let _ = Schematic::from_bytes(include_bytes!("./assets/cabaret-t5.schem")).unwrap();
-    let data = schematic.block_entities.get(0).unwrap();
 
-    println!("{:#?}", data);
+    println!("{:#?}", schematic.blocks.block_entities[0]);
 }
