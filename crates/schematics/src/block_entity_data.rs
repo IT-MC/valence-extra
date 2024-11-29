@@ -114,7 +114,7 @@ pub struct BarrelBlockEntityData {
     #[serde(rename = "CustomName")]
     pub custom_name: Option<String>,
     #[serde(rename = "Items")]
-    pub items: Vec<Item>,
+    pub items: Option<Vec<Item>>,
     #[serde(rename = "Lock")]
     pub lock: Option<String>,
     #[serde(rename = "LootTable")]
@@ -166,7 +166,7 @@ pub struct BlastFurnanceBlockEntityData {
     #[serde(rename = "CustomName")]
     pub custom_name: Option<String>,
     #[serde(rename = "Items")]
-    pub items: Vec<Item>,
+    pub items: Option<Vec<Item>>,
     #[serde(rename = "Lock")]
     pub lock: Option<String>,
     #[serde(rename = "RecipesUsed")]
@@ -180,7 +180,7 @@ pub struct BrewingStandBlockEntityData {
     #[serde(rename = "CustomName")]
     pub custom_name: Option<String>,
     #[serde(rename = "Items")]
-    pub items: Vec<Item>,
+    pub items: Option<Vec<Item>>,
     #[serde(rename = "Lock")]
     pub lock: Option<String>,
 }
@@ -192,13 +192,13 @@ pub struct CampFireBlockEntityData {
     #[serde(rename = "CookingTotalTimes")]
     pub cooking_total_times: Vec<i32>,
     #[serde(rename = "Items")]
-    pub items: Vec<Item>,
+    pub items: Option<Vec<Item>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ChiseledBookShelfBlockEntityData {
     #[serde(rename = "Items")]
-    pub items: Vec<Item>,
+    pub items: Option<Vec<Item>>,
     pub last_interacted_slot: i32,
 }
 
@@ -207,7 +207,7 @@ pub struct ChestBlockEntityData {
     #[serde(rename = "CustomName")]
     pub custom_name: Option<String>,
     #[serde(rename = "Items")]
-    pub items: Vec<Item>,
+    pub items: Option<Option<Vec<Item>>>,
     #[serde(rename = "Lock")]
     pub lock: Option<String>,
     #[serde(rename = "LootTable")]
@@ -256,7 +256,7 @@ pub struct DispenserBlockEntityData {
     #[serde(rename = "CustomName")]
     pub custom_name: Option<String>,
     #[serde(rename = "Items")]
-    pub items: Vec<Item>,
+    pub items: Option<Vec<Item>>,
     #[serde(rename = "Lock")]
     pub lock: Option<String>,
     #[serde(rename = "LootTable")]
@@ -270,7 +270,7 @@ pub struct DropperBlockEntityData {
     #[serde(rename = "CustomName")]
     pub custom_name: Option<String>,
     #[serde(rename = "Items")]
-    pub items: Vec<Item>,
+    pub items: Option<Vec<Item>>,
     #[serde(rename = "Lock")]
     pub lock: Option<String>,
     #[serde(rename = "LootTable")]
@@ -302,7 +302,7 @@ pub struct FurnaceBlockEntityData {
     #[serde(rename = "CustomName")]
     pub custom_name: Option<String>,
     #[serde(rename = "Items")]
-    pub items: Vec<Item>,
+    pub items: Option<Vec<Item>>,
     #[serde(rename = "Lock")]
     pub lock: Option<String>,
     #[serde(rename = "RecipesUsed")]
@@ -314,7 +314,7 @@ pub struct HopperBlockEntityData {
     #[serde(rename = "CustomName")]
     pub custom_name: Option<String>,
     #[serde(rename = "Items")]
-    pub items: Vec<Item>,
+    pub items: Option<Vec<Item>>,
     #[serde(rename = "Lock")]
     pub lock: Option<String>,
     #[serde(rename = "LootTable")]
@@ -369,7 +369,7 @@ pub struct ShulkerBoxBlockEntityData {
     #[serde(rename = "CustomName")]
     pub custom_name: Option<String>,
     #[serde(rename = "Items")]
-    pub items: Vec<Item>,
+    pub items: Option<Vec<Item>>,
     #[serde(rename = "Lock")]
     pub lock: Option<String>,
     #[serde(rename = "LootTable")]
@@ -396,7 +396,7 @@ pub struct SmokerBlockEntityData {
     #[serde(rename = "CustomName")]
     pub custom_name: Option<String>,
     #[serde(rename = "Items")]
-    pub items: Vec<Item>,
+    pub items: Option<Vec<Item>>,
     #[serde(rename = "Lock")]
     pub lock: Option<String>,
     #[serde(rename = "RecipesUsed")]
@@ -410,7 +410,7 @@ pub struct SoulCampFireBlockEntityData {
     #[serde(rename = "CookingTotalTimes")]
     pub cooking_total_times: Vec<i32>,
     #[serde(rename = "Items")]
-    pub items: Vec<Item>,
+    pub items: Option<Vec<Item>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -418,7 +418,7 @@ pub struct TrappedChestBlockEntityData {
     #[serde(rename = "CustomName")]
     pub custom_name: Option<String>,
     #[serde(rename = "Items")]
-    pub items: Vec<Item>,
+    pub items: Option<Vec<Item>>,
     #[serde(rename = "Lock")]
     pub lock: Option<String>,
     #[serde(rename = "LootTable")]
